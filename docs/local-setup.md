@@ -5,7 +5,7 @@ This guide explains how to use the observability stack as a submodule in your ap
 ## Architecture
 
 ```
-App Repository (medicaments-api/)
+App Repository (your-app/)
 ├── docker-compose.yml         # app + alloy + obs-stack
 ├── .env                       # ALLOY_CONFIG setting (default: config.alloy)
 ├── observability/              # git submodule
@@ -19,13 +19,14 @@ App Repository (medicaments-api/)
 
 Docker Network: obs-network
 ┌─────────────────────────────────────────────────────┐
-│  medicaments-api  ──┐                                 │
-│                     ├─→ Alloy ──→ Loki               │
-│  prometheus        └─→          ──→ Prometheus  │
-│  loki                                     ──→ Grafana   │
-│  grafana                                                │
+│ your-app ──┐ │
+│ ├─→ Alloy ──→ Loki │
+│ prometheus └─→ ──→ Prometheus │
+│ loki ──→ Grafana │
+│ grafana │
 └─────────────────────────────────────────────────────┘
-```
+
+````
 
 ## Prerequisites
 
@@ -47,7 +48,7 @@ git submodule update --init --recursive
 
 # Verify submodule
 ls observability/
-```
+````
 
 ### .gitmodules
 
@@ -96,14 +97,22 @@ services:
     ports:
       - "8030:8000"
     expose:
-      - "9090"                    # Metrics endpoint
+      - "9090" # Metrics endpoint
     volumes:
-      - logs_data:/app/logs      # Log volume
+      - logs_data:/app/logs # Log volume
     restart: unless-stopped
     networks:
       - obs-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8000/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -130,7 +139,7 @@ services:
 
 networks:
   obs-network:
-    external: true                # Must exist before starting app
+    external: true # Must exist before starting app
     name: obs-network
 
 volumes:
@@ -138,6 +147,7 @@ volumes:
 ```
 
 **Important**:
+
 - `obs-network` must be `external: true` because it's created by the observability submodule.
 - `${ALLOY_CONFIG:-config.alloy}` defaults to local mode if the env var is not set.
 - **Safety**: Default is always local — remote requires explicit `ALLOY_CONFIG=config.remote.alloy` in `.env`.
@@ -390,18 +400,19 @@ docker network rm obs-network
 
 ## Advantages vs Remote Mode
 
-| Feature | Local (Submodule) | Remote (Tunnel) |
-|---------|------------------|------------------|
-| Setup complexity | Simple | Medium |
-| Resource usage | Higher (all-in-one) | Lower (distributed) |
-| Outage resilience | None | WAL buffering |
-| Network requirements | None | Tunnel needed |
-| Production ready | ❌ | ✅ |
-| Development | ✅ | ⚠️ |
+| Feature              | Local (Submodule)   | Remote (Tunnel)     |
+| -------------------- | ------------------- | ------------------- |
+| Setup complexity     | Simple              | Medium              |
+| Resource usage       | Higher (all-in-one) | Lower (distributed) |
+| Outage resilience    | None                | WAL buffering       |
+| Network requirements | None                | Tunnel needed       |
+| Production ready     | ❌                  | ✅                  |
+| Development          | ✅                  | ⚠️                  |
 
 ## Use Cases
 
 ### Use Local Mode When:
+
 - Development environment
 - Staging environment
 - Testing new dashboards
@@ -409,6 +420,7 @@ docker network rm obs-network
 - No need for outage protection
 
 ### Use Remote Mode When:
+
 - Production deployment
 - Multiple apps sharing same stack
 - Windows PC as observability server

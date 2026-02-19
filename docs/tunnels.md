@@ -8,11 +8,11 @@ Tunnels allow your observability stack to be accessed from remote production ser
 
 ## Available Tunnels
 
-| Tunnel | Use Case | Setup Difficulty | Features |
-|--------|----------|------------------|----------|
-| **Cloudflare** | Public access with auth | Easy | Built-in auth, CDN, SSL, DDoS protection |
-| **Tailscale** | Private mesh network | Medium | Encrypted mesh, NAT traversal, simple |
-| **WireGuard** | Self-hosted VPN | Hard | Lightweight, high performance, manual config |
+| Tunnel         | Use Case                | Setup Difficulty | Features                                     |
+| -------------- | ----------------------- | ---------------- | -------------------------------------------- |
+| **Cloudflare** | Public access with auth | Easy             | Built-in auth, CDN, SSL, DDoS protection     |
+| **Tailscale**  | Private mesh network    | Medium           | Encrypted mesh, NAT traversal, simple        |
+| **WireGuard**  | Self-hosted VPN         | Hard             | Lightweight, high performance, manual config |
 
 ## Cloudflare Tunnel (Recommended)
 
@@ -24,28 +24,29 @@ Tunnels allow your observability stack to be accessed from remote production ser
 ### Setup
 
 1. **Create Tunnel**
+
    ```bash
    # Go to Cloudflare Zero Trust → Tunnels → Create tunnel
    # Choose "Cloudflared" → Copy your token
    ```
 
 2. **Configure Tunnel Hostnames**
-   
+
    In Cloudflare Zero Trust → Tunnels → your tunnel → Public Hostnames:
 
-   | Hostname | Service | URL |
-   |----------|---------|-----|
+   | Hostname                        | Service    | URL                      |
+   | ------------------------------- | ---------- | ------------------------ |
    | `prometheus-obs.yourdomain.com` | Prometheus | `http://prometheus:9090` |
-   | `loki-obs.yourdomain.com` | Loki | `http://loki:3100` |
-   | `grafana-obs.yourdomain.com` | Grafana | `http://grafana:3000` |
+   | `loki-obs.yourdomain.com`       | Loki       | `http://loki:3100`       |
+   | `grafana-obs.yourdomain.com`    | Grafana    | `http://grafana:3000`    |
 
 3. **Setup Cloudflare Access (Optional but Recommended)**
-   
-   Go to Zero Trust → Access → Service Auth → Service Tokens:
 
+   Go to Zero Trust → Access → Service Auth → Service Tokens:
    - Create service token → Copy ID and Secret
 
 4. **Configure .env**
+
    ```bash
    CLOUDFLARE_TUNNEL_TOKEN=your_token_here
    CF_ACCESS_CLIENT_ID=your_client_id
@@ -76,33 +77,38 @@ GRAFANA_URL=https://grafana-obs.yourdomain.com
 ### Setup
 
 1. **Create Auth Key**
+
    ```bash
    # Go to tailscale.com → Settings → Auth Keys → Generate auth key
    # Copy the key
    ```
 
 2. **Configure .env**
+
    ```bash
    TAILSCALE_AUTHKEY=tskey-auth-your-key-here
    TS_HOSTNAME=obs-stack
    ```
 
 3. **Start Stack**
+
    ```bash
    make up-tailscale
    ```
 
 4. **Find Your Tailscale IP**
+
    ```bash
    docker exec tailscale-obs tailscale ip -4
    # Example: 100.x.x.x
    ```
 
 5. **Connect Production Server**
+
    ```bash
    # Install Tailscale on production server
    curl -fsSL https://tailscale.com/install.sh | sh
-   
+
    # Connect to your tailnet
    sudo tailscale up --authkey=your_auth_key
    ```
@@ -125,6 +131,7 @@ GRAFANA_URL=http://100.x.x.x:3000
 ### Setup
 
 1. **Configure .env**
+
    ```bash
    WG_SERVER_URL=your-public-ip.com
    WG_PORT=51820
@@ -132,18 +139,20 @@ GRAFANA_URL=http://100.x.x.x:3000
    ```
 
 2. **Start Stack**
+
    ```bash
    make up-wireguard
    ```
 
 3. **Get Peer Configuration**
+
    ```bash
    docker logs wireguard-obs
    # Look for "Peer #1" section with config
    ```
 
 4. **Configure Production Server**
-   
+
    Copy the peer config to production server `/etc/wireguard/wg0.conf`:
 
    ```ini
@@ -174,15 +183,15 @@ GRAFANA_URL=http://10.13.13.1:3000
 
 ## Comparison
 
-| Feature | Cloudflare | Tailscale | WireGuard |
-|---------|-----------|-----------|----------|
-| Public Access | ✅ Yes | ❌ No | ❌ No |
-| Built-in Auth | ✅ Yes | ❌ No | ❌ No |
-| SSL/TLS | ✅ Automatic | ✅ Automatic | ⚠️ Manual |
-| DDoS Protection | ✅ Yes | ❌ No | ❌ No |
-| Setup Time | ~5 min | ~10 min | ~30 min |
-| Cost | Free tier available | Free for personal | Free |
-| Maintenance | Low | Low | Medium |
+| Feature         | Cloudflare          | Tailscale         | WireGuard |
+| --------------- | ------------------- | ----------------- | --------- |
+| Public Access   | ✅ Yes              | ❌ No             | ❌ No     |
+| Built-in Auth   | ✅ Yes              | ❌ No             | ❌ No     |
+| SSL/TLS         | ✅ Automatic        | ✅ Automatic      | ⚠️ Manual |
+| DDoS Protection | ✅ Yes              | ❌ No             | ❌ No     |
+| Setup Time      | ~5 min              | ~10 min           | ~30 min   |
+| Cost            | Free tier available | Free for personal | Free      |
+| Maintenance     | Low                 | Low               | Medium    |
 
 ## Troubleshooting
 

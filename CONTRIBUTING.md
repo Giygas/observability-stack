@@ -164,6 +164,7 @@ When adding new environment variables:
 4. Note which services use the variable
 
 Example:
+
 ```bash
 # ── New Service ────────────────────────────────────────
 NEW_SERVICE_PORT=8080     # Port for new service

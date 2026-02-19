@@ -8,7 +8,7 @@ This guide explains how to use the observability stack in remote mode, where app
 Production Server (Linux)              Observability Stack (Windows PC/Server)
 ┌─────────────────────────────┐        ┌──────────────────────────────────┐
 │                             │        │                                  │
-│ medicaments-api:8030        │        │ Loki:3100                        │
+│ your-app:8030        │        │ Loki:3100                        │
 │              │              │        │ Prometheus:9090                  │
 │              ▼              │        │ Grafana:3000                      │
 │ Grafana Alloy               ├────────┤ (Exposed via tunnel)              │
@@ -252,6 +252,7 @@ prometheus.remote_write "obs" {
 ### Estimated Buffer Duration
 
 Based on typical usage:
+
 - **Metrics**: ~500MB/day → ~5 days
 - **Logs**: ~300MB/day → ~8 days
 - **Total**: ~5-10 days per outage
@@ -270,6 +271,7 @@ docker exec grafana-alloy du -sh /var/lib/alloy/wal
 To connect multiple apps to the same observability stack:
 
 1. **Use unique job labels** in each app's Alloy config:
+
    ```alloy
    prometheus.scrape "app" {
      targets = [{
@@ -280,6 +282,7 @@ To connect multiple apps to the same observability stack:
    ```
 
 2. **Filter by job** in Grafana queries:
+
    ```promql
    rate(http_requests_total{job="your-app-name"}[5m])
    ```
@@ -368,7 +371,7 @@ CF_ACCESS_CLIENT_SECRET=your_secret
 # App docker-compose.yml
 networks:
   obs-network:
-    external: true    # Join existing obs-network
+    external: true # Join existing obs-network
     # Don't create internal network to avoid conflicts
 ```
 
@@ -379,6 +382,7 @@ networks:
 Prometheus endpoint on Alloy: `http://localhost:12345/metrics`
 
 Key metrics:
+
 - `alloy_wal_size_bytes` - Current WAL size
 - `alloy_wal_replayed_bytes` - Bytes replayed after reconnect
 - `alloy_remote_write_errors_total` - Remote write errors

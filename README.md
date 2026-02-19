@@ -45,12 +45,14 @@ make up-wireguard
 Two operation modes:
 
 ### Mode 1: Standalone Remote (Production)
+
 - Runs on a dedicated server/PC
 - Exposes endpoints via tunnel (Cloudflare/Tailscale/WireGuard)
 - Multiple apps connect remotely via Grafana Alloy
 - **Alloy Config**: `config.remote.alloy` with WAL buffering
 
 ### Mode 2: Local Submodule (Dev/Staging)
+
 - Added as git submodule in app repo
 - Spins up with app via `make up`
 - Everything runs on same Docker network
@@ -78,11 +80,11 @@ This ensures production deployments don't accidentally use remote endpoints with
 
 ## Services
 
-| Service | Port | Description |
-|---------|------|-------------|
-| Grafana | 3000 | Web UI for dashboards |
-| Prometheus | 9090 | Metrics endpoint |
-| Loki | 3100 | Logs endpoint |
+| Service    | Port | Description           |
+| ---------- | ---- | --------------------- |
+| Grafana    | 3000 | Web UI for dashboards |
+| Prometheus | 9090 | Metrics endpoint      |
+| Loki       | 3100 | Logs endpoint         |
 
 ## Usage
 
@@ -126,6 +128,8 @@ Environment variables are set in `.env`:
 ```bash
 cp .env.example .env
 ```
+
+**Note**: For detailed instructions on tunnels, see [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel-recommended).
 
 ### Grafana
 
@@ -175,11 +179,13 @@ WG_PEERS=1
 Applications connect via **Grafana Alloy** with two modes:
 
 ### Local Mode (`config.alloy`)
+
 - Alloy in same app repo
 - Direct container DNS resolution
 - No auth headers needed
 
 ### Remote Mode (`config.remote.alloy`)
+
 - Alloy in app repo, obs stack on remote machine
 - WAL buffering for outage protection
 - Optional auth headers (Cloudflare Access)
@@ -216,6 +222,7 @@ prometheus.remote_write "obs" {
 ## Volumes
 
 Persistent data is stored in named volumes:
+
 - `loki-data` - Log chunks
 - `prometheus-data` - Time-series data
 - `grafana-data` - Dashboards and settings

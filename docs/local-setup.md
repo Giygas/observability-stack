@@ -7,12 +7,15 @@ This guide explains how to use the observability stack as a submodule in your ap
 ```
 App Repository (medicaments-api/)
 ├── docker-compose.yml         # app + alloy + obs-stack
+├── .env                       # ALLOY_CONFIG setting (default: config.alloy)
 ├── observability/              # git submodule
 │   ├── docker-compose.yml     # loki + prometheus + grafana
 │   └── configs/
 └── configs/
     └── alloy/
-        └── config.alloy        # local mode config
+        ├── config.alloy         # local mode config (default)
+        └── config.remote.alloy # remote mode config (explicit)
+```
 
 Docker Network: obs-network
 ┌─────────────────────────────────────────────────────┐
@@ -55,6 +58,18 @@ This file is created automatically:
     path = observability
     url = https://github.com/you/observability-stack.git
     branch = main
+```
+
+### .env
+
+Create `.env` in your app repository root:
+
+```bash
+# ── Alloy Mode ─────────────────────────────────────────────
+# Local mode (default): config.alloy
+# Remote mode: config.remote.alloy (requires ALLOY_CONFIG setting)
+# Default is always local — remote requires explicit flag
+ALLOY_CONFIG=config.alloy
 ```
 
 ## Step 2: Setup Observability Stack
@@ -100,7 +115,8 @@ services:
       - "12345:12345"
     volumes:
       - logs_data:/var/log/app:ro
-      - ./configs/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      # Falls back to local config if ALLOY_CONFIG is not set
+      - ./configs/alloy/${ALLOY_CONFIG:-config.alloy}:/etc/alloy/config.alloy:ro
     command:
       - "run"
       - "/etc/alloy/config.alloy"
@@ -121,7 +137,10 @@ volumes:
   logs_data:
 ```
 
-**Important**: `obs-network` must be `external: true` because it's created by the observability submodule.
+**Important**:
+- `obs-network` must be `external: true` because it's created by the observability submodule.
+- `${ALLOY_CONFIG:-config.alloy}` defaults to local mode if the env var is not set.
+- **Safety**: Default is always local — remote requires explicit `ALLOY_CONFIG=config.remote.alloy` in `.env`.
 
 ## Step 4: Create Local Alloy Config
 

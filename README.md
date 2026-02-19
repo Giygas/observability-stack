@@ -48,11 +48,33 @@ Two operation modes:
 - Runs on a dedicated server/PC
 - Exposes endpoints via tunnel (Cloudflare/Tailscale/WireGuard)
 - Multiple apps connect remotely via Grafana Alloy
+- **Alloy Config**: `config.remote.alloy` with WAL buffering
 
 ### Mode 2: Local Submodule (Dev/Staging)
 - Added as git submodule in app repo
 - Spins up with app via `make up`
 - Everything runs on same Docker network
+- **Alloy Config**: `config.alloy` (no WAL, direct container DNS)
+
+### Safety: Default to Local Mode
+
+**Default is always local** — remote mode requires explicit configuration:
+
+```yaml
+# docker-compose.yml in app repository
+grafana-alloy:
+  volumes:
+    # Falls back to local config if ALLOY_CONFIG is not set
+    - ./configs/alloy/${ALLOY_CONFIG:-config.alloy}:/etc/alloy/config.alloy:ro
+```
+
+```bash
+# .env in app repository
+ALLOY_CONFIG=config.alloy          # Local mode (default)
+ALLOY_CONFIG=config.remote.alloy   # Remote mode (explicit)
+```
+
+This ensures production deployments don't accidentally use remote endpoints without proper configuration.
 
 ## Services
 

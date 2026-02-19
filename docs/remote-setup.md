@@ -82,7 +82,8 @@ services:
       - "12345:12345"
     volumes:
       - ./logs:/var/log/app:ro
-      - ./configs/alloy/config.remote.alloy:/etc/alloy/config.alloy:ro
+      # Falls back to local config if ALLOY_CONFIG is not set
+      - ./configs/alloy/${ALLOY_CONFIG:-config.alloy}:/etc/alloy/config.alloy:ro
       - alloy-wal:/var/lib/alloy/wal
     command:
       - "run"
@@ -104,6 +105,8 @@ networks:
 volumes:
   alloy-wal:
 ```
+
+**Safety**: `${ALLOY_CONFIG:-config.alloy}` defaults to local mode. Remote mode requires explicit `ALLOY_CONFIG=config.remote.alloy` in `.env`.
 
 ### Create Remote Alloy Config
 
@@ -184,6 +187,11 @@ loki.write "obs" {
 `.env`:
 
 ```bash
+# ── Alloy Mode ─────────────────────────────────────────────
+# Explicitly set to remote mode for production
+# Default is config.alloy (local mode)
+ALLOY_CONFIG=config.remote.alloy
+
 # Remote endpoint URLs (from Step 2)
 PROMETHEUS_URL=https://prometheus-obs.yourdomain.com/api/v1/write
 LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
@@ -192,6 +200,8 @@ LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
 CF_ACCESS_CLIENT_ID=your_client_id
 CF_ACCESS_CLIENT_SECRET=your_client_secret
 ```
+
+**Important**: Set `ALLOY_CONFIG=config.remote.alloy` to enable remote mode. If not set, defaults to `config.alloy` (local mode).
 
 ## Step 4: Start App on Production
 

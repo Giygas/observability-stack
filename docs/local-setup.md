@@ -15,18 +15,15 @@ App Repository (your-app/)
     └── alloy/
         ├── config.alloy         # local mode config (default)
         └── config.remote.alloy # remote mode config (explicit)
-```
 
 Docker Network: obs-network
-┌─────────────────────────────────────────────────────┐
-│ your-app ──┐ │
-│ ├─→ Alloy ──→ Loki │
-│ prometheus └─→ ──→ Prometheus │
-│ loki ──→ Grafana │
-│ grafana │
-└─────────────────────────────────────────────────────┘
-
-````
++----------------------------------------------------+
+| your-app                                           |
+|      +-> Alloy -> Loki                             |
+|                 +-> Prometheus                       |
+|                          +-> Grafana               |
++----------------------------------------------------+
+```
 
 ## Prerequisites
 
@@ -41,14 +38,14 @@ Docker Network: obs-network
 cd your-app-repo
 
 # Add submodule
-git submodule add https://github.com/you/observability-stack.git observability
+git submodule add https://github.com/Giygas/observability-stack.git observability
 
 # Initialize submodule
 git submodule update --init --recursive
 
 # Verify submodule
 ls observability/
-````
+```
 
 ### .gitmodules
 
@@ -57,7 +54,7 @@ This file is created automatically:
 ```ini
 [submodule "observability"]
     path = observability
-    url = https://github.com/you/observability-stack.git
+    url = https://github.com/Giygas/observability-stack.git
     branch = main
 ```
 
@@ -198,7 +195,7 @@ loki.write "obs" {
 }
 ```
 
-## Step 5: Update Makefile (Optional)
+## Step 5: Update Makefile
 
 ```makefile
 OBS_DIR = observability
@@ -216,7 +213,7 @@ down:
 
 # Observability stack
 obs-up:
-	$(MAKE) -C $(OBS_DIR) up
+	$(MAKE) -C $(OBS_DIR) up TUNNEL=$(TUNNEL)
 
 obs-down:
 	$(MAKE) -C $(OBS_DIR) down
@@ -397,17 +394,6 @@ git rm -f observability
 # Remove Docker network
 docker network rm obs-network
 ```
-
-## Advantages vs Remote Mode
-
-| Feature              | Local (Submodule)   | Remote (Tunnel)     |
-| -------------------- | ------------------- | ------------------- |
-| Setup complexity     | Simple              | Medium              |
-| Resource usage       | Higher (all-in-one) | Lower (distributed) |
-| Outage resilience    | None                | WAL buffering       |
-| Network requirements | None                | Tunnel needed       |
-| Production ready     | ❌                  | ✅                  |
-| Development          | ✅                  | ⚠️                  |
 
 ## Use Cases
 

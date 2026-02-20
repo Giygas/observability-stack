@@ -14,7 +14,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/observability-stack.git
+git clone https://github.com/Giygas/observability-stack.git
 cd observability-stack
 
 # Add upstream remote

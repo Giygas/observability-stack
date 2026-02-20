@@ -1,201 +1,133 @@
-# Observability Stack
+# 📊 Observability Stack
 
-A reusable, standalone observability stack for monitoring applications. Can be used independently as a remote service or as a submodule in app repos.
+> Self-hosted observability (Grafana + Loki + Prometheus) with plug-and-play tunnel support. Run standalone on any machine or drop in as a git submodule. Connect multiple apps via Cloudflare Tunnel, Tailscale, or WireGuard.
 
-## Features
+---
 
-- **Grafana** - Visualization and dashboards
-- **Prometheus** - Metrics collection and storage
-- **Loki** - Log aggregation
-- **Multiple Tunnel Options** - Cloudflare, Tailscale, WireGuard
-- **App-Agnostic** - Works with any application using Alloy
+## What is this?
+
+A zero-config observability stack you can spin up anywhere and connect any application to in minutes — without paying for Grafana Cloud.
+
+It's designed to work in two ways:
+
+- **Standalone** — run it on your PC or a server, connect multiple apps remotely via tunnel
+- **Submodule** — drop it into an app repo, spin everything up together with `make up`
+
+Your app brings its own [Grafana Alloy](https://grafana.com/docs/alloy/) agent. This stack just receives, stores, and visualizes the data.
+
+---
+
+## Stack
+
+| Service                               | Version | Role                       |
+| ------------------------------------- | ------- | -------------------------- |
+| [Grafana](https://grafana.com/)       | 10.2.4  | Dashboards & visualization |
+| [Prometheus](https://prometheus.io/)  | v2.48.0 | Metrics storage & querying |
+| [Loki](https://grafana.com/oss/loki/) | 2.9.10  | Log aggregation            |
+
+**Tunnel options:** Cloudflare Tunnel · Tailscale · WireGuard · None (local)
+
+---
 
 ## Quick Start
 
-### Local Development (No Tunnel)
-
 ```bash
+git clone https://github.com/Giygas/observability-stack.git
+cd observability-stack
 make setup
 make up
 ```
 
-### Remote with Cloudflare Tunnel
+Open Grafana at [http://localhost:3000](http://localhost:3000).
 
-```bash
-make setup
-make up-cloudflare
+---
+
+## Operation Modes
+
+### Mode 1 — Standalone (Remote)
+
+Run the stack on a dedicated machine. Multiple apps connect to it remotely via tunnel.
+
+```
+Linux Server A                      Your PC / VPS
+──────────────────                  ──────────────────────────
+my-app                              observability-stack/
+grafana-alloy ──→ tunnel ──────────→   loki
+                                       prometheus
+Linux Server B                         grafana
+──────────────────                     cloudflared (or tailscale)
+another-app
+grafana-alloy ──→ tunnel ──────────→  (same stack)
 ```
 
-### Remote with Tailscale
+Each app pushes metrics and logs tagged with its own `job` label — Grafana shows them all, cleanly separated.
 
-```bash
-make setup
-make up-tailscale
+### Mode 2 — Submodule (Local Dev / Staging)
+
+Add this repo as a submodule inside your app repo. One `make up` starts everything on a shared Docker network.
+
+```
+Your laptop
+───────────────────────────────────────
+my-app/
+├── docker-compose.yml   (app + alloy)
+└── observability/       (this repo, as submodule)
+    └── docker-compose.yml  (loki + prometheus + grafana)
+
+All containers share obs-network — Alloy reaches Loki and
+Prometheus directly by container name, no tunnel needed.
 ```
 
-### Remote with WireGuard
+---
 
-```bash
-make setup
-make up-wireguard
+## Connecting Your App
+
+Your app needs a [Grafana Alloy](https://grafana.com/docs/alloy/) agent that pushes metrics and logs to this stack. Alloy lives in **your app repo**, not here.
+
+### Local mode (submodule)
+
+Alloy talks to Loki and Prometheus by container name over the shared Docker network:
+
+```alloy
+prometheus.remote_write "obs" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+loki.write "obs" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
 ```
 
-## Architecture
+### Remote mode (tunnel)
 
-Two operation modes:
-
-### Mode 1: Standalone Remote (Production)
-
-- Runs on a dedicated server/PC
-- Exposes endpoints via tunnel (Cloudflare/Tailscale/WireGuard)
-- Multiple apps connect remotely via Grafana Alloy
-- **Alloy Config**: `config.remote.alloy` with WAL buffering
-
-### Mode 2: Local Submodule (Dev/Staging)
-
-- Added as git submodule in app repo
-- Spins up with app via `make up`
-- Everything runs on same Docker network
-- **Alloy Config**: `config.alloy` (no WAL, direct container DNS)
-
-### Safety: Default to Local Mode
-
-**Default is always local** — remote mode requires explicit configuration:
-
-```yaml
-# docker-compose.yml in app repository
-grafana-alloy:
-  volumes:
-    # Falls back to local config if ALLOY_CONFIG is not set
-    - ./configs/alloy/${ALLOY_CONFIG:-config.alloy}:/etc/alloy/config.alloy:ro
-```
-
-```bash
-# .env in app repository
-ALLOY_CONFIG=config.alloy          # Local mode (default)
-ALLOY_CONFIG=config.remote.alloy   # Remote mode (explicit)
-```
-
-This ensures production deployments don't accidentally use remote endpoints without proper configuration.
-
-## Services
-
-| Service    | Port | Description           |
-| ---------- | ---- | --------------------- |
-| Grafana    | 3000 | Web UI for dashboards |
-| Prometheus | 9090 | Metrics endpoint      |
-| Loki       | 3100 | Logs endpoint         |
-
-## Usage
-
-### Add to App Repository
-
-```bash
-git submodule add https://github.com/you/observability-stack.git observability
-```
-
-### Start Stack
-
-```bash
-make up                    # Local mode
-make up-cloudflare         # Cloudflare tunnel
-make up-tailscale          # Tailscale VPN
-make up-wireguard          # WireGuard VPN
-```
-
-### Stop Stack
-
-```bash
-make down
-```
-
-### View Logs
-
-```bash
-make logs
-```
-
-### Check Status
-
-```bash
-make status
-```
-
-## Configuration
-
-Environment variables are set in `.env`:
-
-```bash
-cp .env.example .env
-```
-
-**Note**: For detailed instructions on tunnels, see [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel-recommended).
-
-### Grafana
-
-```bash
-GRAFANA_ADMIN_USER=admin
-GRAFANA_PORT=3000
-```
-
-### Prometheus
-
-```bash
-PROMETHEUS_PORT=9090
-PROMETHEUS_RETENTION=720h    # 30 days
-```
-
-### Loki
-
-```bash
-LOKI_PORT=3100
-```
-
-### Cloudflare Tunnel
-
-```bash
-CLOUDFLARE_TUNNEL_TOKEN=your_token
-CF_ACCESS_CLIENT_ID=your_id
-CF_ACCESS_CLIENT_SECRET=your_secret
-```
-
-### Tailscale
-
-```bash
-TAILSCALE_AUTHKEY=your_authkey
-TS_HOSTNAME=obs-stack
-```
-
-### WireGuard
-
-```bash
-WG_SERVER_URL=your_server.com
-WG_PORT=51820
-WG_PEERS=1
-```
-
-## Connecting Applications
-
-Applications connect via **Grafana Alloy** with two modes:
-
-### Local Mode (`config.alloy`)
-
-- Alloy in same app repo
-- Direct container DNS resolution
-- No auth headers needed
-
-### Remote Mode (`config.remote.alloy`)
-
-- Alloy in app repo, obs stack on remote machine
-- WAL buffering for outage protection
-- Optional auth headers (Cloudflare Access)
-
-Example remote Alloy config:
+Alloy pushes to your tunnel endpoints, with optional Cloudflare Access auth and WAL buffering for outage protection:
 
 ```alloy
 prometheus.remote_write "obs" {
   endpoint {
     url = env("PROMETHEUS_URL")
+
+    headers = {
+      "CF-Access-Client-Id"     = env("CF_ACCESS_CLIENT_ID"),
+      "CF-Access-Client-Secret" = env("CF_ACCESS_CLIENT_SECRET"),
+    }
+
+    queue_config {
+      capacity             = 10000
+      max_samples_per_send = 2000
+      max_backoff          = "5s"
+    }
+  }
+}
+
+loki.write "obs" {
+  endpoint {
+    url = env("LOKI_URL")
+
     headers = {
       "CF-Access-Client-Id"     = env("CF_ACCESS_CLIENT_ID"),
       "CF-Access-Client-Secret" = env("CF_ACCESS_CLIENT_SECRET"),
@@ -204,42 +136,173 @@ prometheus.remote_write "obs" {
 }
 ```
 
+> **WAL buffering:** with `--storage.path` enabled in Alloy, metrics and logs are buffered to disk during outages and replayed automatically when the stack comes back online. Short outages (up to ~2h by default) result in zero data loss.
+
+### Using as a submodule in your app repo
+
+```bash
+# Add this repo as a submodule
+git submodule add https://github.com/Giygas/observability-stack.git observability
+
+# Or if already defined in .gitmodules
+git submodule update --init --recursive
+```
+
+Then in your app's `docker-compose.yml`, join the shared network:
+
+```yaml
+networks:
+  obs-network:
+    external: true
+    name: obs-network
+```
+
+And in your app's Makefile, delegate to this repo:
+
+```makefile
+obs-up:
+	$(MAKE) -C observability up
+
+up: obs-up
+	docker compose up -d
+```
+
+---
+
+## Tunnels
+
+No tunnel is required for local use. For remote access, pick one:
+
+### Cloudflare Tunnel (recommended if you use Cloudflare)
+
+Best if you already have a Cloudflare account and domain. No open ports, HTTPS out of the box, optional Access policies for auth.
+
+```bash
+make up-cloudflare
+```
+
+Set up in [Cloudflare Zero Trust](https://one.dash.cloudflare.com) → Tunnels → Create tunnel. Add these public hostnames pointing to the container names:
+
+| Hostname                        | Service                  |
+| ------------------------------- | ------------------------ |
+| `prometheus-obs.yourdomain.com` | `http://prometheus:9090` |
+| `loki-obs.yourdomain.com`       | `http://loki:3100`       |
+| `grafana-obs.yourdomain.com`    | `http://grafana:3000`    |
+
+Then in your app's `.env`:
+
+```env
+PROMETHEUS_URL=https://prometheus-obs.yourdomain.com/api/v1/write
+LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
+```
+
+See [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel) for Cloudflare Access configuration.
+
+### Tailscale
+
+Best if you don't have a domain or want a pure peer-to-peer VPN.
+
+```bash
+make up-tailscale
+```
+
+After setup, use your machine's Tailscale IP in your app's `.env`:
+
+```env
+PROMETHEUS_URL=http://100.x.x.x:9090/api/v1/write
+LOKI_URL=http://100.x.x.x:3100/loki/api/v1/push
+```
+
+See [Tunnel Setup Guide](docs/tunnels.md#tailscale).
+
+### WireGuard
+
+Best for self-hosters who want full control with no third-party services.
+
+```bash
+make up-wireguard
+```
+
+See [Tunnel Setup Guide](docs/tunnels.md#wireguard).
+
+---
+
+## Configuration
+
+```bash
+cp .env.example .env
+```
+
+| Variable                  | Default     | Description                          |
+| ------------------------- | ----------- | ------------------------------------ |
+| `GRAFANA_ADMIN_USER`      | `admin`     | Grafana admin username               |
+| `GRAFANA_PORT`            | `3000`      | Grafana host port                    |
+| `PROMETHEUS_PORT`         | `9090`      | Prometheus host port                 |
+| `PROMETHEUS_RETENTION`    | `720h`      | Metrics retention (30 days)          |
+| `LOKI_PORT`               | `3100`      | Loki host port                       |
+| `CLOUDFLARE_TUNNEL_TOKEN` | —           | Cloudflare tunnel token              |
+| `CF_ACCESS_CLIENT_ID`     | —           | Cloudflare Access client ID          |
+| `CF_ACCESS_CLIENT_SECRET` | —           | Cloudflare Access client secret      |
+| `TAILSCALE_AUTHKEY`       | —           | Tailscale auth key                   |
+| `TS_HOSTNAME`             | `obs-stack` | Tailscale machine hostname           |
+| `WG_SERVER_URL`           | —           | WireGuard server public IP or domain |
+| `WG_PORT`                 | `51820`     | WireGuard UDP port                   |
+
+Grafana password is stored in `secrets/grafana_password.txt` (created by `make setup`).
+
+---
+
+## Make Commands
+
+```
+make setup           Initialize secrets and .env file
+make up              Start stack (no tunnel)
+make up-cloudflare   Start stack with Cloudflare Tunnel
+make up-tailscale    Start stack with Tailscale
+make up-wireguard    Start stack with WireGuard
+make down            Stop stack
+make restart         Restart stack
+make logs            Tail logs (SERVICE=name to filter)
+make status          Show container status
+make clean           Remove all containers, volumes, and images
+```
+
+---
+
+## Data & Storage
+
+All data is persisted in named Docker volumes and survives container restarts:
+
+| Volume            | Contents              | Default Retention      |
+| ----------------- | --------------------- | ---------------------- |
+| `prometheus-data` | Metrics time-series   | 30 days (configurable) |
+| `loki-data`       | Log chunks            | 30 days (configurable) |
+| `grafana-data`    | Dashboards & settings | Permanent              |
+
+---
+
+## Security Notes
+
+- Grafana password is file-based (`secrets/`) and never stored in `.env`
+- Services are not exposed publicly by default — tunnel provides controlled access
+- Cloudflare Access adds token-based authentication on top of the tunnel
+- All inter-service communication stays inside the Docker `obs-network` bridge
+
+---
+
 ## Documentation
 
 - [Tunnel Setup Guide](docs/tunnels.md)
 - [Remote Mode Setup](docs/remote-setup.md)
-- [Local Mode Setup](docs/local-setup.md)
+- [Local Submodule Setup](docs/local-setup.md)
 
-## Default Credentials
-
-- **Grafana**: `admin` / `admin` (change in `secrets/grafana_password.txt`)
-
-## Data Retention
-
-- **Prometheus**: 30 days (720h) - configurable
-- **Loki**: 30 days (720h) - configurable
-
-## Volumes
-
-Persistent data is stored in named volumes:
-
-- `loki-data` - Log chunks
-- `prometheus-data` - Time-series data
-- `grafana-data` - Dashboards and settings
-
-## Security
-
-- Grafana password file (secrets/)
-- Optional Cloudflare Access protection
-- Tunnel-based encryption (no public ports)
-- Network isolation via Docker networks
+---
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Contributions welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
+
+---
 
 ## License
 

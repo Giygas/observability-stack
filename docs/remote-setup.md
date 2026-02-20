@@ -203,6 +203,8 @@ CF_ACCESS_CLIENT_SECRET=your_client_secret
 
 **Important**: Set `ALLOY_CONFIG=config.remote.alloy` to enable remote mode. If not set, defaults to `config.alloy` (local mode).
 
+> **Safety**: `ALLOY_CONFIG` defaults to `config.alloy` (local mode). Remote mode requires explicit `ALLOY_CONFIG=config.remote.alloy` in `.env` — this prevents accidental data loss from misconfiguration.
+
 ## Step 4: Start App on Production
 
 ```bash
@@ -251,11 +253,11 @@ prometheus.remote_write "obs" {
 
 ### Estimated Buffer Duration
 
-Based on typical usage:
+Based on typical usage with 2.5GB max buffer:
 
 - **Metrics**: ~500MB/day → ~5 days
 - **Logs**: ~300MB/day → ~8 days
-- **Total**: ~5-10 days per outage
+- **Total**: ~5-10 days per outage (depends on actual data volume)
 
 ### Check WAL Status
 

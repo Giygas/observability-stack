@@ -62,6 +62,8 @@ Tunnels allow your observability stack to be accessed from remote production ser
 
 After setup, your remote endpoints are:
 
+> **Note**: Service URLs use Docker container names (e.g., `http://prometheus:9090`) because cloudflared runs on the same `obs-network`. These are internal addresses, not accessible from outside of the tunnel.
+
 ```
 PROMETHEUS_URL=https://prometheus-obs.yourdomain.com/api/v1/write
 LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
@@ -187,7 +189,7 @@ GRAFANA_URL=http://10.13.13.1:3000
 | --------------- | ------------------- | ----------------- | --------- |
 | Public Access   | ✅ Yes              | ❌ No             | ❌ No     |
 | Built-in Auth   | ✅ Yes              | ❌ No             | ❌ No     |
-| SSL/TLS         | ✅ Automatic        | ✅ Automatic      | ⚠️ Manual |
+| SSL/TLS         | ✅ Automatic        | ❌ No             | ⚠️ Manual |
 | DDoS Protection | ✅ Yes              | ❌ No             | ❌ No     |
 | Setup Time      | ~5 min              | ~10 min           | ~30 min   |
 | Cost            | Free tier available | Free for personal | Free      |
@@ -201,8 +203,8 @@ GRAFANA_URL=http://10.13.13.1:3000
 # Check logs
 docker logs cloudflared-obs
 
-# Verify token
-echo $CLOUDFLARE_TUNNEL_TOKEN | grep -q "^ey" && echo "Valid" || echo "Invalid"
+# Verify token is set
+echo $CLOUDFLARE_TUNNEL_TOKEN
 ```
 
 ### Tailscale Not Connecting

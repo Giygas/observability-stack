@@ -136,7 +136,7 @@ loki.write "obs" {
 }
 ```
 
-> **WAL buffering:** with `--storage.path` enabled in Alloy, metrics and logs are buffered to disk during outages and replayed automatically when the stack comes back online. Short outages (up to ~2h by default) result in zero data loss.
+> **WAL buffering:** with `--storage.path` enabled in Alloy, metrics and logs are buffered to disk during outages and replayed automatically when the stack comes back online, protection duration depends on data volume and WAL size (2.5GB default).
 
 ### Using as a submodule in your app repo
 
@@ -166,6 +166,63 @@ obs-up:
 up: obs-up
 	docker compose up -d
 ```
+
+---
+
+## System Metrics
+
+System metrics scraping belongs at the app level, not the observability stack level. Monitoring the obs stack's own host has little value — what matters is the machine running your application.
+
+The setup depends on the OS where your app runs:
+
+### Linux (native binary deployment)
+
+Install `node-exporter` on the machine running your app:
+
+```bash
+# Install node-exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
+tar xvf node_exporter-1.7.0.linux-amd64.tar.gz
+sudo mv node_exporter-1.7.0.linux-amd64/node_exporter /usr/local/bin/
+sudo systemctl enable --now node_exporter
+```
+
+Then in your app's Alloy config, scrape `localhost:9100` and forward to the obs stack.
+
+In your app's Alloy config (`config.remote.alloy`), add a `prometheus.scrape` block targeting `localhost:9100` and pointing `forward_to` at your existing `prometheus.remote_write.obs.receiver` — same pattern as the app metrics scrape, just a different address:
+
+```alloy
+prometheus.scrape "node_exporter" {
+  targets = [{
+    __address__ = "localhost:9100",
+    job         = "node-exporter",
+  }]
+  forward_to = [prometheus.remote_write.obs.receiver]
+}
+```
+
+### Windows
+
+Download and install [windows-exporter](https://github.com/prometheus-community/windows_exporter/releases) as a Windows service. It exposes metrics on `localhost:9182`.
+
+Then scrape it in your app's Alloy config and forward to the obs stack:
+
+```alloy
+prometheus.scrape "windows_exporter" {
+  targets = [{
+    __address__ = "localhost:9182"
+    job         = "node-exporter",
+  }]
+  forward_to = [prometheus.remote_write.obs.receiver]
+}
+```
+
+### Grafana Dashboards
+
+Import these dashboards in Grafana to visualize your system metrics:
+
+- **Linux:** [Node Exporter Full](https://grafana.com/grafana/dashboards/1860) (ID: 1860)
+- **Windows:** [Windows Exporter](https://grafana.com/grafana/dashboards/10467) (ID: 10467)
 
 ---
 

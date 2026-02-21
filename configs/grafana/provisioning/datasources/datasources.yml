@@ -14,4 +14,4 @@ datasources:
     access: proxy
     url: http://loki:3100
     editable: false
-    uid: P8E80F9AEF21F6940
+    uid: loki-datasource

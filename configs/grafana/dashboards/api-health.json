@@ -52,7 +52,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "green",
@@ -86,7 +86,7 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "datasource": {
@@ -102,6 +102,7 @@
         }
       ],
       "title": "API Status",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -125,7 +126,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "dark-yellow",
@@ -171,7 +172,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "editorMode": "builder",
@@ -208,6 +209,7 @@
         }
       ],
       "title": "Pressure",
+      "transparent": true,
       "type": "bargauge"
     },
     {
@@ -228,7 +230,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "yellow",
@@ -266,7 +268,7 @@
         "textMode": "value_and_name",
         "wideLayout": true
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "datasource": {
@@ -282,6 +284,7 @@
         }
       ],
       "title": "File Descriptors Usage",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -300,7 +303,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -333,7 +336,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "editorMode": "code",
@@ -344,6 +347,7 @@
         }
       ],
       "title": "Error rate",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -363,7 +367,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -396,7 +400,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
           "editorMode": "code",
@@ -409,6 +413,7 @@
         }
       ],
       "title": "In flight requests",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -428,7 +433,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -444,8 +448,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
-            "showValues": false,
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -461,7 +464,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -496,8 +499,12 @@
       "pluginVersion": "13.0.0-22172290520",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
           "editorMode": "code",
-          "expr": "go_gc_duration_seconds{instance=\"$instance\", job=\"$job\", quantile=\"1.0\"} * 1000",
+          "expr": "go_gc_duration_seconds{instance=\"$instance\", job=\"$job\", quantile=\"1\"} * 1000",
           "interval": "",
           "legendFormat": "Goroutines",
           "range": true,
@@ -525,7 +532,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 100,
             "gradientMode": "hue",
@@ -542,7 +548,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -558,7 +563,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -636,7 +641,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 1,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -653,7 +657,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -669,7 +672,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -755,7 +758,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 1,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -772,7 +774,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -788,7 +789,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           },
@@ -834,7 +835,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -848,7 +850,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 1,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -865,7 +866,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -875,13 +875,14 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           },
@@ -899,8 +900,8 @@
       "options": {
         "legend": {
           "calcs": ["lastNotNull"],
-          "displayMode": "table",
-          "placement": "right",
+          "displayMode": "list",
+          "placement": "bottom",
           "showLegend": false,
           "sortBy": "Last *",
           "sortDesc": true
@@ -917,14 +918,18 @@
           "datasource": {
             "type": "prometheus"
           },
+          "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "topk(10, sum by(path) (increase(http_request_total{job=\"$job\", instance=\"$instance\"}[$__rate_interval])) > 0)",
+          "expr": "topk(10, sum by(path) (increase(http_request_total{job=\"$job\", instance=\"$instance\"}[5m]))) > 0",
           "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": true,
-          "legendFormat": "{{path}} - {{status}}",
+          "legendFormat": "{{path}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Top 5 Endpoints by Request Rate (5m)",
@@ -944,7 +949,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -958,7 +964,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -975,7 +980,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -991,7 +995,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "dark-orange",
@@ -1013,7 +1017,7 @@
       "options": {
         "legend": {
           "calcs": ["mean"],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": false
         },
@@ -1029,11 +1033,17 @@
           "datasource": {
             "type": "prometheus"
           },
-          "editorMode": "code",
-          "expr": "topk(5, histogram_quantile(0.95, sum by (path, le) (rate(http_request_duration_seconds_bucket{job=\"medicaments-api\"}[$__rate_interval])))) * 1000",
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "histogram_quantile(0.95, sum by(path, le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=\"$instance\"}[5m]))) * 1000",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
           "legendFormat": "{{path}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Top 5 Slowest Endpoints (p95)",
@@ -1041,7 +1051,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
       },
       "description": "Requests over the last 5m",
       "fieldConfig": {
@@ -1056,7 +1067,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.5,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -1073,7 +1083,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1083,13 +1092,14 @@
               "mode": "off"
             }
           },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           },
@@ -1184,11 +1194,15 @@
           "datasource": {
             "type": "prometheus"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "expr": "sum by(status) (increase(http_request_total{job=\"$job\"}[5m]))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{status}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Request Rate by Status Code",
@@ -1196,7 +1210,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus-datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1211,7 +1226,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 80,
             "gradientMode": "hue",
@@ -1228,7 +1242,6 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1244,7 +1257,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               }
             ]
           },
@@ -1336,7 +1349,7 @@
       },
       "id": 18,
       "options": {
-        "calculate": true,
+        "calculate": false,
         "calculation": {
           "xBuckets": {
             "mode": "count",
@@ -1353,13 +1366,13 @@
         "cellGap": 1,
         "cellValues": {},
         "color": {
-          "exponent": 0.5,
+          "exponent": 1.4,
           "fill": "dark-orange",
           "mode": "scheme",
           "reverse": false,
           "scale": "exponential",
           "scheme": "Oranges",
-          "steps": 64
+          "steps": 66
         },
         "exemplars": {
           "color": "rgba(255,0,255,0.7)"
@@ -1375,24 +1388,34 @@
         },
         "tooltip": {
           "mode": "single",
+          "show": true,
           "showColorScale": false,
           "yHistogram": false
         },
         "yAxis": {
           "axisPlacement": "left",
           "reverse": false,
-          "unit": "ms"
+          "unit": "s"
         }
       },
-      "pluginVersion": "13.0.0-22172290520",
+      "pluginVersion": "10.2.4",
       "targets": [
         {
-          "editorMode": "code",
-          "expr": "sum by(le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=\"$instance\"}[$__rate_interval])) * 1000",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-datasource"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "sum by(le) (rate(http_request_duration_seconds_bucket{job=\"$job\", instance=\"$instance\"}[5m]))",
           "format": "heatmap",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Request duration heatmap",
@@ -1644,6 +1667,7 @@
         "y": 30
       },
       "id": 7,
+      "maxDataPoints": 3000,
       "options": {
         "displayLabels": [],
         "legend": {
@@ -1701,7 +1725,6 @@
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "barAlignment": 0,
-            "barWidthFactor": 0.8,
             "drawStyle": "bars",
             "fillOpacity": 100,
             "gradientMode": "none",
@@ -1718,7 +1741,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1734,7 +1756,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -1845,7 +1867,6 @@
       },
       "id": 6,
       "interval": "1m",
-      "maxDataPoints": 500,
       "options": {
         "legend": {
           "calcs": ["sum"],
@@ -1862,6 +1883,10 @@
       "pluginVersion": "13.0.0-22172290520",
       "targets": [
         {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki-datasource"
+          },
           "direction": "backward",
           "editorMode": "builder",
           "expr": "sum by(level) (count_over_time({job=\"$job\"} |~ `.+` | json path=\"path\" [$__auto]))",
@@ -1878,10 +1903,6 @@
         "type": "loki",
         "uid": "loki-datasource"
       },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -1895,6 +1916,8 @@
         "enableInfiniteScrolling": false,
         "enableLogDetails": true,
         "fontSize": "small",
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
         "showControls": false,
         "showFieldSelector": false,
         "showLabels": false,
@@ -1915,30 +1938,37 @@
           "direction": "backward",
           "editorMode": "builder",
           "expr": "{job=\"$job\"} |~ `(?i)$filter` | json path=\"path\"",
+          "legendFormat": "",
+          "maxLines": 1200,
           "queryType": "range",
           "refId": "A"
         }
       ],
       "title": "Raw Logs",
+      "transformations": [],
       "transparent": true,
       "type": "logs"
     }
   ],
-  "preload": false,
-  "schemaVersion": 42,
+  "refresh": "10s",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "text": "digitalocean-droplet",
-          "value": "digitalocean-droplet"
+          "selected": false,
+          "text": "docker-container",
+          "value": "docker-container"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "prometheus-datasource"
         },
         "definition": "label_values(instance)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
         "name": "instance",
         "options": [],
         "query": {
@@ -1949,10 +1979,13 @@
         "refresh": 1,
         "regex": "",
         "regexApplyTo": "value",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       },
       {
         "current": {
+          "selected": false,
           "text": "medicaments-api",
           "value": "medicaments-api"
         },
@@ -1961,6 +1994,9 @@
           "uid": "prometheus-datasource"
         },
         "definition": "label_values(job)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
         "name": "job",
         "options": [],
         "query": {
@@ -1971,13 +2007,17 @@
         "refresh": 1,
         "regex": "",
         "regexApplyTo": "value",
+        "skipUrlSync": false,
+        "sort": 0,
         "type": "query"
       },
       {
         "current": {
+          "selected": false,
           "text": "",
           "value": ""
         },
+        "hide": 0,
         "name": "filter",
         "options": [
           {
@@ -1987,6 +2027,7 @@
           }
         ],
         "query": "",
+        "skipUrlSync": false,
         "type": "textbox"
       },
       {
@@ -1996,19 +2037,21 @@
           "uid": "prometheus-datasource"
         },
         "filters": [],
+        "hide": 0,
         "name": "filters",
+        "skipUrlSync": false,
         "type": "adhoc"
       }
     ]
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "App + Server metrics",
-  "uid": "gu4rgd8",
-  "version": 21,
+  "title": "App + Server metrics Copy",
+  "uid": "c937ee09-12bc-4ce7-9e4a-823c5c3ccc55",
+  "version": 17,
   "weekStart": ""
 }

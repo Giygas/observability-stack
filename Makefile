@@ -17,7 +17,7 @@ help: ## Display this help message
 	@echo "=========================================="
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make $(CYAN)<target>$(RESET)\n\nTargets:\n"} \
 		/^[a-zA-Z][a-zA-Z0-9_-]*:.*##/ { printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2 } \
-		/^##@/ { printf "\n%s\n", substr($$0, 5) }' $(MAKEFILE_LIST)
+		/^##@/ { printf "\n%s\n", substr($0, 5) }' $(MAKEFILE_LIST)
 	@echo ""
 
 ##@ Setup
@@ -61,7 +61,7 @@ validate-secrets:
 ##@ Stack
 
 .PHONY: up
-up: validate-secrets ## Start the observability stack (TUNNEL=none|cloudflare|tailscale|wireguard)
+up: validate-secrets ## Start observability stack (TUNNEL=none|cloudflare|tailscale|wireguard)
 	@echo "Starting observability stack (tunnel: $(TUNNEL))..."
 	@$(BASE_CMD) up -d
 	@if [ "$(TUNNEL)" != "none" ]; then \
@@ -74,7 +74,7 @@ up: validate-secrets ## Start the observability stack (TUNNEL=none|cloudflare|ta
 	@echo "Loki:       http://localhost:3100"
 
 .PHONY: down
-down: ## Stop the observability stack
+down: ## Stop observability stack
 	@echo "Stopping observability stack..."
 	@if [ "$(TUNNEL)" != "none" ]; then \
 		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
@@ -115,7 +115,79 @@ up-local: ## Start with no tunnel (local/LAN only)
 
 .PHONY: clean
 clean: ## Remove containers, networks, and volumes
+	@echo "Removing all observability Docker resources..."
 	@if [ "$(TUNNEL)" != "none" ]; then \
 		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
 	fi
-	@$(BASE_CMD) down --volumes --rmi all
+		@$(BASE_CMD) down --volumes --rmi all
+	@echo "$(GREEN)✓ Clean complete$(RESET)"
+
+.PHONY: health-check
+health-check: ## Quick health check (services, storage, resources)
+	@echo "🏥 Observability Stack Health Check"
+	@echo ""
+	@echo "─────────────────────────────────"
+	@echo "┌─ Services ─────────────────────┐"
+	@$(COMPOSE_CMD) ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" | sed '1d' | while read name status ports; do \
+		service=$$(echo $$name | cut -d_ -f2); \
+		if echo $$status | grep -q "healthy\|Up"; then \
+			echo -e "│ $$service\t✅ $$status\tPorts: $$ports"; \
+		else \
+			echo -e "│ $$service\t❌ $$status\tPorts: $$ports"; \
+		fi; \
+	done
+	@echo "└────────────────────────────────┘"
+	@echo ""
+	@echo "─────────────────────────────────"
+	@echo "┌─ Health Endpoint Status ─────┐"
+	@-curl -s -o /dev/null -w "Prometheus: %{http_code}\n" http://localhost:9090/-/healthy 2>/dev/null || echo "Prometheus:  Unreachable"
+	@-curl -s -o /dev/null -w "Loki:        %{http_code}\n" http://localhost:3100/ready 2>/dev/null || echo "Loki:         Unreachable"
+	@-curl -s -o /dev/null -w "Grafana:     %{http_code}\n" http://localhost:3000/api/health 2>/dev/null || echo "Grafana:      Unreachable"
+	@echo "└────────────────────────────────┘"
+	@echo ""
+	@echo "✅ Health check complete"
+
+.PHONY: validate
+validate: ## Validate configuration and secrets
+	@echo "🔍 Validating configuration..."
+	@echo ""
+	@echo "Checking secrets..."
+	@if [ ! -f ./secrets/grafana_password.txt ]; then \
+		echo "❌ secrets/grafana_password.txt not found"; \
+		echo "Run: make setup"; \
+		exit 1; \
+	fi
+	@echo "✓ secrets/grafana_password.txt exists"
+	@echo ""
+	@echo "Checking .env file..."
+	@if [ ! -f .env ]; then \
+		echo "❌ .env not found"; \
+		echo "Run: cp .env.example .env"; \
+		exit 1; \
+	fi
+	@echo "✓ .env exists"
+	@echo ""
+	@echo "Checking Docker daemon..."
+	@if ! docker info > /dev/null 2>&1; then \
+		echo "❌ Docker daemon is not running"; \
+		exit 1; \
+	fi
+	@echo "✓ Docker daemon is running"
+	@echo ""
+	@echo "Checking docker compose..."
+	@if ! docker compose version > /dev/null 2>&1; then \
+		echo "❌ Docker Compose is not available"; \
+		exit 1; \
+	fi
+	@echo "✓ Docker Compose is available"
+	@echo ""
+	@echo "Checking ports..."
+	@for port in 3000 3100 9090; do \
+		if lsof -Pi :$$port -sTCP:LISTEN -t > /dev/null 2>&1; then \
+			echo "✓ Port $$port is available"; \
+		else \
+			echo "⚠️  Port $$port is in use or blocked"; \
+		fi; \
+	done
+	@echo ""
+	@echo "✅ Validation complete"

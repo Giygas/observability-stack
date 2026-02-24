@@ -321,6 +321,8 @@ make down            Stop stack
 make restart         Restart stack
 make logs            Tail logs (SERVICE=name to filter)
 make status          Show container status
+make health-check    Quick health check (services, endpoints)
+make validate         Validate configuration and environment
 make clean           Remove all containers, volumes, and images
 ```
 

@@ -328,6 +328,19 @@ make clean           Remove all containers, volumes, and images
 
 ---
 
+## Staying Updated
+
+**If using this project directly (standalone):**
+- Check [CHANGELOG.md](CHANGELOG.md) for new features, fixes, and changes
+- Update by running: `git pull` and `make up`
+
+**If using as a git submodule in your app:**
+- Check [docs/submodule-updates.md](docs/submodule-updates.md) for what you need to do
+- Run: `make obs-update` in your parent project
+- See [Local Submodule Setup](docs/local-setup.md#updating-submodule) for details
+
+---
+
 ## Data & Storage
 
 All data is persisted in named Docker volumes and survives container restarts:

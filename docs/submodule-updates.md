@@ -7,7 +7,8 @@ This guide helps you keep your project updated when using observability-stack as
 ## Baseline Status (v1.0.0)
 
 **Current release:** v1.0.0
-**Release date:** [Current date]
+**Release date:** 2026-02-21
+**Commit:** 42cd107c57fa9aaf6ee67255788c175dac2a7fc5
 
 ### What's Included
 
@@ -32,6 +33,38 @@ This guide helps you keep your project updated when using observability-stack as
 **What to do:**
 ```bash
 make obs-update
+```
+
+---
+
+### [Unreleased]
+
+**Breaking Changes:** None
+**Recommended Updates:** None
+**Optional Updates:**
+  - Add `obs-health-check` and `obs-validate` Make delegates (see Common Patterns below)
+
+**What's New:**
+- **New Make targets:**
+  - `make health-check` - Quick health check for services, storage, and resources
+  - `make validate` - Validate configuration and secrets
+- **New documentation:**
+  - `ROADMAP.md` - Comprehensive roadmap of planned features
+  - `docs/submodule-updates.md` - This guide for parent projects
+
+**Changes:**
+- Updated Grafana dashboard (api-health.json v2) with improved thresholds and transparency
+- Improved Makefile help text for better clarity
+
+**What to do:**
+```bash
+# Pull latest changes
+make obs-update
+
+# Optional: Add convenience commands to your Makefile
+# See "Common Patterns > Adding New Make Delegates" below
+
+# Otherwise, no action required
 ```
 
 ---

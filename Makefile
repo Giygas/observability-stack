@@ -1,13 +1,7 @@
 .DEFAULT_GOAL := help
 
 TUNNEL   ?= none
-BASE_CMD  = docker compose -f docker-compose.yml
-
-ifeq ($(TUNNEL), none)
-  COMPOSE_CMD = $(BASE_CMD)
-else
-  COMPOSE_CMD = $(BASE_CMD) -f tunnels/$(TUNNEL).yml
-endif
+BASE_CMD  = docker compose --env-file .env -f docker-compose.yml
 
 # Colors
 CYAN  := \033[36m
@@ -32,10 +26,13 @@ help: ## Display this help message
 setup: ## Initialize secrets and .env file
 	@mkdir -p secrets
 	@if [ ! -f secrets/grafana_password.txt ]; then \
-		read -sp "Enter Grafana admin password: " password; \
+		stty -echo; \
+		printf "Enter Grafana admin password: "; \
+		read password; \
+		stty echo; \
 		echo ""; \
 		echo "$$password" > secrets/grafana_password.txt; \
-		chmod 600 secrets/grafana_password.txt; \
+		chmod 644 secrets/grafana_password.txt; \
 		echo "✓ Created secrets/grafana_password.txt"; \
 	else \
 		echo "✓ secrets/grafana_password.txt already exists"; \
@@ -48,9 +45,15 @@ setup: ## Initialize secrets and .env file
 	fi
 
 .PHONY: validate-secrets
-validate-secrets: ## Validate required secrets exist
+validate-secrets:
 	@if [ ! -f ./secrets/grafana_password.txt ]; then \
 		echo "❌ secrets/grafana_password.txt not found. Run: make setup"; \
+		exit 1; \
+	fi
+	@PERMS=$$(stat -c "%a" ./secrets/grafana_password.txt 2>/dev/null || stat -f "%OLp" ./secrets/grafana_password.txt); \
+	if [ "$$PERMS" = "600" ] || [ "$$PERMS" = "700" ]; then \
+		echo "❌ secrets/grafana_password.txt has permissions $$PERMS — container cannot read it."; \
+		echo "   Run: chmod 644 secrets/grafana_password.txt"; \
 		exit 1; \
 	fi
 	@echo "✓ Secrets validated"
@@ -60,7 +63,10 @@ validate-secrets: ## Validate required secrets exist
 .PHONY: up
 up: validate-secrets ## Start the observability stack (TUNNEL=none|cloudflare|tailscale|wireguard)
 	@echo "Starting observability stack (tunnel: $(TUNNEL))..."
-	@$(COMPOSE_CMD) up -d
+	@$(BASE_CMD) up -d
+	@if [ "$(TUNNEL)" != "none" ]; then \
+		docker compose --env-file .env -f tunnels/$(TUNNEL).yml up -d; \
+	fi
 	@echo "$(GREEN)✓ Observability stack started$(RESET)"
 	@echo ""
 	@echo "Grafana:    http://localhost:3000"
@@ -70,19 +76,22 @@ up: validate-secrets ## Start the observability stack (TUNNEL=none|cloudflare|ta
 .PHONY: down
 down: ## Stop the observability stack
 	@echo "Stopping observability stack..."
-	@$(COMPOSE_CMD) down
+	@if [ "$(TUNNEL)" != "none" ]; then \
+		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
+	fi
+	@$(BASE_CMD) down
 	@echo "$(GREEN)✓ Observability stack stopped$(RESET)"
-
+	
 .PHONY: restart
 restart: down up ## Restart the observability stack
 
 .PHONY: logs
 logs: ## View logs (use SERVICE=name to filter)
-	@$(COMPOSE_CMD) logs -f $(SERVICE)
+	@$(BASE_CMD) logs -f $(SERVICE)
 
 .PHONY: status
 status: ## Show stack status
-	@$(COMPOSE_CMD) ps
+	@$(BASE_CMD) ps
 
 ##@ Tunnel Shortcuts
 
@@ -106,6 +115,7 @@ up-local: ## Start with no tunnel (local/LAN only)
 
 .PHONY: clean
 clean: ## Remove containers, networks, and volumes
-	@echo "Removing all observability Docker resources..."
-	@$(COMPOSE_CMD) down --volumes --rmi all
-	@echo "$(GREEN)✓ Clean complete$(RESET)"
+	@if [ "$(TUNNEL)" != "none" ]; then \
+		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
+	fi
+	@$(BASE_CMD) down --volumes --rmi all

@@ -253,7 +253,7 @@ PROMETHEUS_URL=https://prometheus-obs.yourdomain.com/api/v1/write
 LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
 ```
 
-See [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel) for Cloudflare Access configuration.
+See [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel) for Cloudflare Tunnel configuration and [Cloudflare Access Setup Guide](docs/cloudflare-access.md) for authentication, access policies, and service tokens.
 
 ### Tailscale
 
@@ -365,6 +365,7 @@ All data is persisted in named Docker volumes and survives container restarts:
 ## Documentation
 
 - [Tunnel Setup Guide](docs/tunnels.md)
+- [Cloudflare Access Setup Guide](docs/cloudflare-access.md)
 - [Remote Mode Setup](docs/remote-setup.md)
 - [Local Submodule Setup](docs/local-setup.md)
 

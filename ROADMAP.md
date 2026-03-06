@@ -6,9 +6,9 @@ A zero-config observability stack that starts simple and scales when needed. Loc
 
 ---
 
-## Simple Complexity
+## Quick Wins
 
-Documentation and convenience features with low implementation effort.
+Documentation and convenience features that deliver immediate value with minimal effort.
 
 ### Documentation
 
@@ -33,14 +33,14 @@ Documentation and convenience features with low implementation effort.
 
 ---
 
-## Medium Complexity
+## Medium Effort
 
-Features requiring moderate effort, adding new capabilities.
+Features that add significant capabilities with moderate implementation effort.
 
 ### Security
 
 - [ ] OAuth2/OIDC integration for Grafana
-- [ ] Cloudflare Access setup guide
+- [x] Cloudflare Access setup guide
 - [ ] Service-to-service authentication
 - [ ] Secrets management patterns
 
@@ -64,9 +64,9 @@ Features requiring moderate effort, adding new capabilities.
 
 ---
 
-## Complex Complexity
+## Major Features
 
-Major features requiring significant design and implementation.
+Complex features requiring significant design and implementation effort.
 
 ### High Availability
 

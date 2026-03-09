@@ -45,7 +45,7 @@ setup: ## Initialize secrets and .env file
 	fi
 
 .PHONY: validate-secrets
-validate-secrets:
+validate-secrets: ## (internal) Fast secrets check before up
 	@if [ ! -f ./secrets/grafana_password.txt ]; then \
 		echo "❌ secrets/grafana_password.txt not found. Run: make setup"; \
 		exit 1; \
@@ -56,7 +56,6 @@ validate-secrets:
 		echo "   Run: chmod 644 secrets/grafana_password.txt"; \
 		exit 1; \
 	fi
-	@echo "✓ Secrets validated"
 
 ##@ Stack
 
@@ -76,9 +75,11 @@ up: validate-secrets ## Start observability stack (TUNNEL=none|cloudflare|tailsc
 .PHONY: down
 down: ## Stop observability stack
 	@echo "Stopping observability stack..."
-	@if [ "$(TUNNEL)" != "none" ]; then \
-		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
-	fi
+	@for tunnel in cloudflare tailscale wireguard; do \
+		if [ -f tunnels/$$tunnel.yml ]; then \
+			docker compose --env-file .env -f tunnels/$$tunnel.yml down 2>/dev/null || true; \
+		fi; \
+	done
 	@$(BASE_CMD) down
 	@echo "$(GREEN)✓ Observability stack stopped$(RESET)"
 	
@@ -116,10 +117,12 @@ up-local: ## Start with no tunnel (local/LAN only)
 .PHONY: clean
 clean: ## Remove containers, networks, and volumes
 	@echo "Removing all observability Docker resources..."
-	@if [ "$(TUNNEL)" != "none" ]; then \
-		docker compose --env-file .env -f tunnels/$(TUNNEL).yml down; \
-	fi
-		@$(BASE_CMD) down --volumes --rmi all
+	@for tunnel in cloudflare tailscale wireguard; do \
+		if [ -f tunnels/$$tunnel.yml ]; then \
+			docker compose --env-file .env -f tunnels/$$tunnel.yml down 2>/dev/null || true; \
+		fi; \
+	done
+	@$(BASE_CMD) down --volumes --rmi all
 	@echo "$(GREEN)✓ Clean complete$(RESET)"
 
 .PHONY: health-check
@@ -128,7 +131,7 @@ health-check: ## Quick health check (services, storage, resources)
 	@echo ""
 	@echo "─────────────────────────────────"
 	@echo "┌─ Services ─────────────────────┐"
-	@$(COMPOSE_CMD) ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" | sed '1d' | while read name status ports; do \
+	@$(BASE_CMD) ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" | sed '1d' | while read name status ports; do \
 		service=$$(echo $$name | cut -d_ -f2); \
 		if echo $$status | grep -q "healthy\|Up"; then \
 			echo -e "│ $$service\t✅ $$status\tPorts: $$ports"; \
@@ -184,9 +187,9 @@ validate: ## Validate configuration and secrets
 	@echo "Checking ports..."
 	@for port in 3000 3100 9090; do \
 		if lsof -Pi :$$port -sTCP:LISTEN -t > /dev/null 2>&1; then \
-			echo "✓ Port $$port is available"; \
-		else \
 			echo "⚠️  Port $$port is in use or blocked"; \
+		else \
+			echo "✓ Port $$port is available"; \
 		fi; \
 	done
 	@echo ""

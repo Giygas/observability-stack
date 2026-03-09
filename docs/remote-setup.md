@@ -359,6 +359,8 @@ CF_ACCESS_CLIENT_ID=your_id
 CF_ACCESS_CLIENT_SECRET=your_secret
 ```
 
+> **Full Guide**: See [Cloudflare Access Setup Guide](cloudflare-access.md) for comprehensive setup including policy configuration, MFA, service tokens, and best practices.
+
 ### Tailscale ACLs
 
 ```bash

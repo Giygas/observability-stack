@@ -1,5 +1,7 @@
 # Ignore secrets
 secrets/*.txt
+.opencode
+agents.md
 
 # Ignore environment variables
 .env

@@ -200,7 +200,7 @@ loki.write "obs" {
 ```makefile
 OBS_DIR = observability
 
-.PHONY: up down logs status obs-up obs-down obs-update
+.PHONY: up down logs status obs-up obs-down obs-update obs-health-check obs-validate
 
 # Full stack startup
 up: obs-up
@@ -223,6 +223,13 @@ obs-logs:
 
 obs-status:
 	$(MAKE) -C $(OBS_DIR) status
+
+# Health and validation
+obs-health-check:
+	$(MAKE) -C $(OBS_DIR) health-check
+
+obs-validate:
+	$(MAKE) -C $(OBS_DIR) validate
 
 # App logs
 logs:

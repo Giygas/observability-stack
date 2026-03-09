@@ -253,7 +253,7 @@ PROMETHEUS_URL=https://prometheus-obs.yourdomain.com/api/v1/write
 LOKI_URL=https://loki-obs.yourdomain.com/loki/api/v1/push
 ```
 
-See [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel) for Cloudflare Access configuration.
+See [Tunnel Setup Guide](docs/tunnels.md#cloudflare-tunnel) for Cloudflare Tunnel configuration and [Cloudflare Access Setup Guide](docs/cloudflare-access.md) for authentication, access policies, and service tokens.
 
 ### Tailscale
 
@@ -321,8 +321,23 @@ make down            Stop stack
 make restart         Restart stack
 make logs            Tail logs (SERVICE=name to filter)
 make status          Show container status
+make health-check    Quick health check (services, endpoints)
+make validate         Validate configuration and environment
 make clean           Remove all containers, volumes, and images
 ```
+
+---
+
+## Staying Updated
+
+**If using this project directly (standalone):**
+- Check [CHANGELOG.md](CHANGELOG.md) for new features, fixes, and changes
+- Update by running: `git pull` and `make up`
+
+**If using as a git submodule in your app:**
+- Check [docs/submodule-updates.md](docs/submodule-updates.md) for what you need to do
+- Run: `make obs-update` in your parent project
+- See [Local Submodule Setup](docs/local-setup.md#updating-submodule) for details
 
 ---
 
@@ -350,6 +365,7 @@ All data is persisted in named Docker volumes and survives container restarts:
 ## Documentation
 
 - [Tunnel Setup Guide](docs/tunnels.md)
+- [Cloudflare Access Setup Guide](docs/cloudflare-access.md)
 - [Remote Mode Setup](docs/remote-setup.md)
 - [Local Submodule Setup](docs/local-setup.md)
 

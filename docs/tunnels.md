@@ -23,14 +23,37 @@ Tunnels allow your observability stack to be accessed from remote production ser
 
 ### Setup
 
-1. **Create Tunnel**
+0. **Create the Tunnel and Get Your Token**
 
-   ```bash
-   # Go to Cloudflare Zero Trust → Tunnels → Create tunnel
-   # Choose "Cloudflared" → Copy your token
-   ```
+   1. Go to **Cloudflare Zero Trust → Networks → Tunnels**
+   2. Click **Create a tunnel**
+   3. Select **Cloudflared** as the connector type
+   4. Give it a name (e.g., `obs-stack`)
+   5. Cloudflare will show you an install command like:
 
-2. **Configure Tunnel Hostnames**
+      ```bash
+      cloudflared tunnel install <token>
+      ```
+
+      **Ignore this** — you don't need to install cloudflared manually. Copy just the token from the command (the long string after `--token`).
+
+   6. Paste the token in your `observability/.env`:
+
+      ```bash
+      CLOUDFLARE_TUNNEL_TOKEN=eyJhIjoiMT...
+      ```
+
+   7. Start the stack:
+
+      ```bash
+      make up-cloudflare
+      ```
+
+      The cloudflared container will connect automatically using that token — no manual install needed.
+
+   8. Back in the Cloudflare dashboard, your tunnel should show as **Connected**.
+
+ 2. **Configure Tunnel Hostnames**
 
    In Cloudflare Zero Trust → Tunnels → your tunnel → Public Hostnames:
 
@@ -40,23 +63,19 @@ Tunnels allow your observability stack to be accessed from remote production ser
    | `loki-obs.yourdomain.com`       | Loki       | `http://loki:3100`       |
    | `grafana-obs.yourdomain.com`    | Grafana    | `http://grafana:3000`    |
 
-3. **Setup Cloudflare Access (Optional but Recommended)**
+ 3. **Setup Cloudflare Access (Recommended)**
 
-   Go to Zero Trust → Access → Service Auth → Service Tokens:
-   - Create service token → Copy ID and Secret
+     Go to **Zero Trust → Access → Service Auth → Service Tokens**:
+     - Create service token → Copy ID and Secret
 
-4. **Configure .env**
+     Add to your `.env`:
 
-   ```bash
-   CLOUDFLARE_TUNNEL_TOKEN=your_token_here
-   CF_ACCESS_CLIENT_ID=your_client_id
-   CF_ACCESS_CLIENT_SECRET=your_client_secret
-   ```
+     ```bash
+     CF_ACCESS_CLIENT_ID=your_client_id
+     CF_ACCESS_CLIENT_SECRET=your_client_secret
+     ```
 
-5. **Start Stack**
-   ```bash
-   make up-cloudflare
-   ```
+     > **Full Guide**: See [Cloudflare Access Setup Guide](cloudflare-access.md) for detailed configuration including access policies, MFA, and best practices.
 
 ### URLs for Remote Apps
 

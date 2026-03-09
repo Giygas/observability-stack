@@ -9,18 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-09
+
 ### Added
-- **Health Check Command**: `make health-check` for quick service and endpoint status checks
-- **Validation Command**: `make validate` for configuration and environment validation
-- **ROADMAP.md**: Comprehensive roadmap of planned features categorized by complexity
-- **Submodule Update Guide**: `docs/submodule-updates.md` for parent projects
+- Health check command for quick service and endpoint status checks
+- Validation command for configuration and environment validation
+- ROADMAP.md with comprehensive feature planning
+- Submodule update guide for parent projects
+- Cloudflare Access setup guide with authentication and authorization patterns
 
 ### Changed
-- **Dashboard v2**: Updated `configs/grafana/dashboards/api-health.json` dashboard
-  - Fixed threshold values (changed from `0` to `null`)
-  - Synced plugin version to Grafana 10.2.4
-  - Added transparency to panels for better visual integration
-- **Makefile Help Text**: Improved target descriptions for brevity
+- Updated API Health dashboard to v2 with corrected thresholds and Grafana 10.2.4 compatibility
+- Improved Makefile target descriptions and help text
+- Updated tunnel documentation with Cloudflare Access cross-references
+- Updated .gitignore for .opencode and agents.md
+
+### Fixed
+- Fixed Makefile tunnel startup order to start core stack before tunnels
+- Fixed Makefile env-file loading to pass to all docker compose commands
+- Fixed Grafana secret permissions in Makefile
+- Fixed Makefile port check logic inversion in validate target
+- Improved Makefile down and clean targets to stop all tunnels regardless of TUNNEL variable
 
 ---
 
@@ -34,3 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pre-configured Grafana dashboards
 - Grafana provisioning
 - API Health dashboard template
+
+---
+
+[Unreleased]: https://github.com/Giygas/observability-stack/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Giygas/observability-stack/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Giygas/observability-stack/releases/tag/v1.0.0

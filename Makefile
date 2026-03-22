@@ -15,11 +15,11 @@ help: ## Display this help message
 	@echo "=========================================="
 	@echo "  Observability Stack - Make Commands"
 	@echo "=========================================="
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make $(CYAN)<target>$(RESET)\n\nTargets:\n"} \
-		/^[a-zA-Z][a-zA-Z0-9_-]*:.*##/ { printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2 } \
-		/^##@/ { printf "\n%s\n", substr($0, 5) }' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*\x23\x23"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} \
+		/^[a-zA-Z][a-zA-Z0-9_-]*:.*\x23\x23/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } \
+		/^\x23\x23@/ { printf "\n%s\n", substr($$0, 5) }' $(MAKEFILE_LIST)
 	@echo ""
-
+	
 ##@ Setup
 
 .PHONY: setup
